@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class SpawnWaves : MonoBehaviour {
@@ -104,8 +104,8 @@ public class SpawnWaves : MonoBehaviour {
 					GameObject eO = (GameObject)Instantiate(enemyOut, new Vector3(95.0f,0.0f,15.0f), 
 			                                   Quaternion.identity);
 					MoveUsingDFS mud = eO.GetComponent<MoveUsingDFS>();
-					mud.wayPoints = bsm.mEnemyPath;
-					Debug.Log (bsm.mEnemyPath.Count);
+					mud.wayPoints = bsm.thePath;
+					Debug.Log (bsm.thePath.Count);
 					numEnemiesRemaining++;
 					outsideSpawnDuration = outSpawnTime;
 				}
@@ -129,7 +129,7 @@ public class SpawnWaves : MonoBehaviour {
 					GameObject eO = (GameObject)Instantiate(enemyOut, new Vector3(95.0f,0.0f,-45.0f), 
 					                                        Quaternion.identity);
 					MoveUsingDFS mud = eO.GetComponent<MoveUsingDFS>();
-					mud.wayPoints = bsm.mEnemyPath2;
+					mud.wayPoints = bsm.thePath2;
 					Debug.Log (mud.wayPoints.Count);
 					numEnemiesRemaining++;
 					outsideSpawnDuration1 = outSpawnTime1;

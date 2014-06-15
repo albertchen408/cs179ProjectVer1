@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -64,12 +64,12 @@ public class MoveUsingDFS : MonoBehaviour {
 		if(gct)
 		{
 			Buy_Shoot_Modes bsm = gct.GetComponent<Buy_Shoot_Modes>();
-			if(bsm.mPathWaysChanged)
+			if(bsm.thePathsHaveChanged)
 			{
 				//wayPoints = bsm.thePath;
-				if(wayPoints.Contains(bsm.mTheTaken))
+				if(wayPoints.Contains(bsm.theTaken))
 				{
-					int currI = wayPoints.IndexOf(bsm.mTheTaken);
+					int currI = wayPoints.IndexOf(bsm.theTaken);
 					//Debug.Log (currI);
 					if(currI < i)
 					{

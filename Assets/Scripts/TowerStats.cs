@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 [RequireComponent(typeof(AudioSource))]
@@ -215,8 +215,8 @@ public class TowerStats : MonoBehaviour {
 				f.GetComponent<upgradeCannons>().timeToUpgrade = true;
 			}
 			theNextStreak = "Fire Rate UP";
-			bsm.mNumShots = 1;
-			bsm.mMultiShot = true;
+			bsm.numShots = 1;
+			bsm.multiShot = true;
 			//bsm.multiShot = true;
 			selectTower++;
 			break;
@@ -246,9 +246,9 @@ public class TowerStats : MonoBehaviour {
 			//GameObject go = GameObject.FindGameObjectWithTag("GameController");
 			//Buy_Shoot_Modes bsm = go.GetComponent<Buy_Shoot_Modes>();
 			theNextStreak = "Splash DMG";
-			bsm.mNumShots = 3;
+			bsm.numShots = 3;
 			//bsm.theTowerWeapon = 1;
-			bsm.mMultiShot = false;
+			bsm.multiShot = false;
 			break;
 
 		case 6:
@@ -260,7 +260,7 @@ public class TowerStats : MonoBehaviour {
 			//Buy_Shoot_Modes bsm = go.GetComponent<Buy_Shoot_Modes>();
 			theNextStreak = "Triple Splash";
 			bsm.theTowerWeapon = 1;
-			bsm.mMultiShot = false;
+			bsm.multiShot = false;
 			break;
 		case 7:
 			//Destroy(towerType);
@@ -269,14 +269,14 @@ public class TowerStats : MonoBehaviour {
 			selectTower++;
 			theNextStreak = "Radius UP";
 			//bsm.theRadiusMult += 1.0f;
-			bsm.mNumShots = 3;
+			bsm.numShots = 3;
 			break;
 		case 8:
 			theNextStreak = "Burst Splash";
-			bsm.mSplashRadiusMultiplier += 1.0f;
+			bsm.theRadiusMult += 1.0f;
 			break;
 		case 9:
-			bsm.mMultiShot = true;
+			bsm.multiShot = true;
 			break;
 		default:
 			break;

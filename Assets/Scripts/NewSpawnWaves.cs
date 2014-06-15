@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class NewSpawnWaves : MonoBehaviour {
@@ -215,12 +215,12 @@ public class NewSpawnWaves : MonoBehaviour {
 		{
 			Debug.Log("DEEEEEEESTROYED");
 			Buy_Shoot_Modes bsm = GameObject.FindGameObjectWithTag("GameController").GetComponent<Buy_Shoot_Modes>();
-			bsm.mEnemeyPath3 = bsm.dijkstraPath(bsm.mStart3,bsm.mEnemeyPath3);
-			bsm.mEnemyPath2 = bsm.dijkstraPath(bsm.mStart2,bsm.mEnemyPath2);
+			bsm.thePath3 = bsm.dijkstraPath(bsm.start3,bsm.thePath3);
+			bsm.thePath2 = bsm.dijkstraPath(bsm.start2,bsm.thePath2);
 			if(allBlue)
 			{
 				Debug.Log("ehllo");
-				bsm.mEnemyPath = bsm.dijkstraPath(bsm.mStart,bsm.mEnemyPath);
+				bsm.thePath = bsm.dijkstraPath(bsm.start,bsm.thePath);
 			}
 			wallsWereDestroyed = false;	
 		}
@@ -340,7 +340,7 @@ public class NewSpawnWaves : MonoBehaviour {
 				{
 					Buy_Shoot_Modes bsm = theGC.GetComponent<Buy_Shoot_Modes>();
 					MoveUsingDFS mud = eO.GetComponent<MoveUsingDFS>();
-					mud.wayPoints = bsm.mEnemeyPath3;
+					mud.wayPoints = bsm.thePath3;
 				}
 
 				if(i == enemyCount/2|| i == 1 || i == enemyCount-2)
@@ -355,7 +355,7 @@ public class NewSpawnWaves : MonoBehaviour {
 							GameObject eo = (GameObject)Instantiate(boss[selectBaws], new Vector3(95.0f,0.0f,45.0f),Quaternion.identity);
 							Buy_Shoot_Modes bsm = theGC.GetComponent<Buy_Shoot_Modes>();
 							MoveUsingDFS mud = eo.GetComponent<MoveUsingDFS>();
-							mud.wayPoints = bsm.mEnemeyPath3;
+							mud.wayPoints = bsm.thePath3;
 							numEnemiesRemaining += eo.GetComponent<BossBase> ().numEnemiesReq;
 						}
 						else
@@ -428,7 +428,7 @@ public class NewSpawnWaves : MonoBehaviour {
 				{
 					Buy_Shoot_Modes bsm = theGC.GetComponent<Buy_Shoot_Modes>();
 					MoveUsingDFS mud = eO.GetComponent<MoveUsingDFS>();
-					mud.wayPoints = bsm.mEnemyPath;
+					mud.wayPoints = bsm.thePath;
 				}
 				if(i == enemyCount/2 || i == 1 || i == enemyCount-2)
 				{
@@ -442,7 +442,7 @@ public class NewSpawnWaves : MonoBehaviour {
 							GameObject eo = (GameObject)Instantiate(boss[selectBaws], new Vector3(95.0f,0.0f,15.0f),Quaternion.identity);
 							Buy_Shoot_Modes bsm = theGC.GetComponent<Buy_Shoot_Modes>();
 							MoveUsingDFS mud = eo.GetComponent<MoveUsingDFS>();
-							mud.wayPoints = bsm.mEnemyPath;
+							mud.wayPoints = bsm.thePath;
 							numEnemiesRemaining += eo.GetComponent<BossBase> ().numEnemiesReq;
 						}
 						else
@@ -515,7 +515,7 @@ public class NewSpawnWaves : MonoBehaviour {
 				{
 					Buy_Shoot_Modes bsm = theGC.GetComponent<Buy_Shoot_Modes>();
 					MoveUsingDFS mud = eO.GetComponent<MoveUsingDFS>();
-					mud.wayPoints = bsm.mEnemyPath2;
+					mud.wayPoints = bsm.thePath2;
 				}
 				if(i == enemyCount/2 || i == 1 || i == enemyCount-2)
 				{
@@ -529,7 +529,7 @@ public class NewSpawnWaves : MonoBehaviour {
 							GameObject eo = (GameObject)Instantiate(boss[selectBaws], new Vector3(95.0f,0.0f,-45.0f),Quaternion.identity);
 							Buy_Shoot_Modes bsm = theGC.GetComponent<Buy_Shoot_Modes>();
 							MoveUsingDFS mud = eo.GetComponent<MoveUsingDFS>();
-							mud.wayPoints = bsm.mEnemyPath2;
+							mud.wayPoints = bsm.thePath2;
 							numEnemiesRemaining += eo.GetComponent<BossBase> ().numEnemiesReq;
 						}
 						else
