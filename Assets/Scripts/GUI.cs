@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class GUI : MonoBehaviour {
@@ -258,12 +258,12 @@ public class GUI : MonoBehaviour {
 						GameObject mode = GameObject.FindGameObjectWithTag ("GameController");	
 						if (mode.GetComponent<Buy_Shoot_Modes> ().shootMode == true) {
 								mode.GetComponent<Buy_Shoot_Modes> ().shootMode = false;
-								mode.GetComponent<Buy_Shoot_Modes> ().buyMode = true;
+								mode.GetComponent<Buy_Shoot_Modes> ().mInputMode = true;
 								mode.GetComponent<Buy_Shoot_Modes> ().theWeapon = 1;
 								whichinfo = 1 ;
 								button1Text = "ATTACK MODE";
-						} else if (mode.GetComponent<Buy_Shoot_Modes> ().buyMode == true) {
-								mode.GetComponent<Buy_Shoot_Modes> ().buyMode = false;
+						} else if (mode.GetComponent<Buy_Shoot_Modes> ().mInputMode == true) {
+								mode.GetComponent<Buy_Shoot_Modes> ().mInputMode = false;
 								mode.GetComponent<Buy_Shoot_Modes> ().shootMode = true;
 								button1Text = "BUILD MODE";
 								whichinfo = 2 ;
@@ -273,11 +273,11 @@ public class GUI : MonoBehaviour {
 				//SECONDARY BUTTONS
 				GameObject mmode = GameObject.FindGameObjectWithTag ("GameController");
 				Buy_Shoot_Modes sell = mmode.GetComponent<Buy_Shoot_Modes> ();
-				if (sell.buyMode) {
+				if (sell.mInputMode) {
 			if (UnityEngine.GUI.Button (new Rect (Screen.width / 100 * 2, Screen.height / 100 * (float)98.5, Screen.width/100*10, Screen.height/100*5), button2Text ,customGUI)) {
 								GameObject mode = GameObject.FindGameObjectWithTag ("GameController");
 								Buy_Shoot_Modes sel = mode.GetComponent<Buy_Shoot_Modes> ();
-								if (sel.buyMode)
+								if (sel.mInputMode)
 										sel.theWeapon = 1;
 								whichinfo = 3 ;
 						}
@@ -285,21 +285,21 @@ public class GUI : MonoBehaviour {
 				if (UnityEngine.GUI.Button (new Rect (Screen.width / 100 * (float)13.5, Screen.height / 100 * (float)98.5, Screen.width/100*10, Screen.height/100*5), button3Text ,customGUI)) {
 								GameObject mode = GameObject.FindGameObjectWithTag ("GameController");
 								Buy_Shoot_Modes sel = mode.GetComponent<Buy_Shoot_Modes> ();
-								if (sel.buyMode)
+								if (sel.mInputMode)
 										sel.theWeapon = 0;
 								whichinfo = 1 ;
 						}
 				if (UnityEngine.GUI.Button (new Rect (Screen.width / 100 * (float)25, Screen.height / 100 * (float)98.5, Screen.width/100*10, Screen.height/100*5), button4Text ,customGUI)) {
 								GameObject mode = GameObject.FindGameObjectWithTag ("GameController");
 								Buy_Shoot_Modes sel = mode.GetComponent<Buy_Shoot_Modes> ();
-								if (sel.buyMode)
+								if (sel.mInputMode)
 										sel.theWeapon = 2;
 								whichinfo = 4 ;
 						}		
 				if (UnityEngine.GUI.Button (new Rect (Screen.width / 100 * (float)36.3, Screen.height / 100 * (float)98.5, Screen.width/100*(float)12, Screen.height/100*5), button5Text ,customGUI)) {
 								GameObject mode = GameObject.FindGameObjectWithTag ("GameController");
 								Buy_Shoot_Modes sel = mode.GetComponent<Buy_Shoot_Modes> ();
-								if (sel.buyMode)
+								if (sel.mInputMode)
 										sel.theWeapon = 3;
 								whichinfo = 5 ;
 						}		
@@ -324,7 +324,7 @@ public class GUI : MonoBehaviour {
 						if((resources - cost) >= 0)
 						{		
 							ts.mResources -= cost;
-							sel.upgradeTowerMult += 0.5f;
+							sel.mTowerUpgradeMultiplier += 0.5f;
 					theT.GetComponent<TowerStats>().upgradeCost += theT.GetComponent<TowerStats>().upgradeCost;
 						}
 					}
@@ -363,7 +363,7 @@ public class GUI : MonoBehaviour {
 		UnityEngine.GUI.Box (new Rect(Screen.width/100 * (float)0.5,Screen.height/100*72, Screen.width/100*30, Screen.height/100*22),"" ,customGUI);
 		GameObject tgc = GameObject.FindGameObjectWithTag ("GameController");
 		Buy_Shoot_Modes ws = tgc.GetComponent<Buy_Shoot_Modes>();
-		float towerDamage = ws.towerWeapons[ws.theTowerWeapon].GetComponent<TowerAmmoStats>().mDamage;
+		float towerDamage = ws.mTowerWeapons[ws.theTowerWeapon].GetComponent<TowerAmmoStats>().mDamage;
 		string towerType = "";
 		if(ws.theTowerWeapon == 0)
 			towerType = "Standard" ;
@@ -377,7 +377,7 @@ public class GUI : MonoBehaviour {
 
 
 			theinfo = "" + "Tower Stats" + "\n\n"
-				+ "Damage" + "#x" + ": " + "#n" + towerDamage * ws.GetComponent<Buy_Shoot_Modes>().upgradeTowerMult+ "\n" + "Type" + "#x" + ": " + "#n" + towerType + "\n" + "Fire Rate" + "#x" + ": " + "#n" + tw.GetComponent<TowerStats>().mFireRate + "\n";
+				+ "Damage" + "#x" + ": " + "#n" + towerDamage * ws.GetComponent<Buy_Shoot_Modes>().mTowerUpgradeMultiplier+ "\n" + "Type" + "#x" + ": " + "#n" + towerType + "\n" + "Fire Rate" + "#x" + ": " + "#n" + tw.GetComponent<TowerStats>().mFireRate + "\n";
 			//UnityEngine.GUI.Box (new Rect(Screen.width/100 * 2,Screen.height/100*75, 200, 100), ""  ,customGUI);
 			//FancyLabel( new Rect(Screen.width/100 * 2,Screen.height/100*75, Screen.width/100*20, Screen.height/100*10), theinfo, normal, bold, italic, TextAlignment.Left);
 
@@ -395,7 +395,7 @@ public class GUI : MonoBehaviour {
 			break;
 		case 2:	//Shoot mode default cannon
 			theinfo = "" + "Tower Stats" + "\n\n"
-				+ "Damage" + "#x" + ": " + "#n" + towerDamage * ws.GetComponent<Buy_Shoot_Modes>().upgradeTowerMult+ "\n" + "Type" + "#x" + ": " + "#n" + towerType + "\n" + "Fire Rate" + "#x" + ": " + "#n" + tw.GetComponent<TowerStats>().mFireRate + "\n";
+				+ "Damage" + "#x" + ": " + "#n" + towerDamage * ws.GetComponent<Buy_Shoot_Modes>().mTowerUpgradeMultiplier+ "\n" + "Type" + "#x" + ": " + "#n" + towerType + "\n" + "Fire Rate" + "#x" + ": " + "#n" + tw.GetComponent<TowerStats>().mFireRate + "\n";
 			//	UnityEngine.GUI.Box (new Rect(Screen.width/100 * 2,Screen.height/100*75, 200, 100), ""  ,customGUI);
 			//FancyLabel( new Rect(Screen.width/100 * 2,Screen.height/100*75, 200, 100), theinfo, normal, bold, italic, TextAlignment.Left);
 			break;

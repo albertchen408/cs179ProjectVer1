@@ -9,14 +9,17 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 	private const float TOWER_FIRE_Y = 20.0f;
 	private const float TOWER_FIRE_Z = 0.0f;
 
+	private const int INPUT_MODE_SHOOT = 0;
+	private const int INPUT_MODE_BUY = 1;
+
 	private Vector3 TOWER_FIRE_VECTOR = new Vector3(TOWER_FIRE_X, TOWER_FIRE_Y, TOWER_FIRE_Z);
-	public Transform towerAmmoSpawn;
+
+	public Transform mTowerAmmoSpawn;
 	/** The maximum firing angle in radians */
 	private const float MAX_FIRE_ANGLE = Mathf.PI / 2; /** 45 degrees */
 
 	/** TODO: Replace with int and have constants defining what mode/weapon */
-	public bool buyMode =	 false;
-	public bool shootMode = true;
+	private int mFireMode = 0;
 
 	//private bool selecting = false;
 
@@ -29,78 +32,86 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 
 	public Vector3 targetPosition;
 
-	private GameObject lastPlane;
-	private GameObject hoverObject;
-	private GameObject towerAmmo;
+	private GameObject mLastPlane;
+	private GameObject mHoverObject;
+	private GameObject mTowerAmmo;
 
-	public Material oldMaterial;
-	public Material hoverMaterial;
-	public Material cantBuy;
+	public Material mOldMaterial;
+	public Material mHoverMaterial;
+	public Material mCantBuyMaterial;
 
-	public int buyPlane;
-	private int enemyLayer = 10;
-	private int placementPlaneLayer = 8;
-	public GameObject[] weapons;
-	public GameObject[] towerWeapons;
+	public int mBuyPlane;
+	private int mEnemeyLayter = 10;
+	private int mPlacement = 8;
 
-	public GameObject[] dummyWeapons;
+	/** Weapons and weapon types */
+	public GameObject[] mWeapons;
+	public GameObject[] mTowerWeapons;
+	public GameObject[] mDummyWeapons;
 
+	/** Materials and game objects for targeting reticles */
 	public Material mTargetMaterial;
 	private GameObject mTargetLocation;
 	private GameObject mTargetPole;
 	private GameObject mTargetLine;
 
-	//for the upgrades.
-	private GridForUnits grid;
+	/** Materials used for grid */
+	private GridForUnits mEnemyGrid;
 
 	private bool mIsClickDown;
 
 
-	//for pathfinding
-	//List<GameObject> distances;
-	//Queue<GameObject> minVisits;
-	public List<GameObject> thePath;
-	public List<GameObject> thePath2;
-	public List<GameObject> thePath3;
-	public GameObject start;
-	public GameObject start2;
-	public GameObject start3;
-	public bool thePathsHaveChanged = false;
-	public GameObject theTaken;
+	/** List of paths for the enemies */
+	public List<GameObject> mEnemyPath;
+	public List<GameObject> mEnemyPath2;
+	public List<GameObject> mEnemeyPath3;
+
+	public GameObject mStart;
+	public GameObject mStart2;
+	public GameObject mStart3;
+
+	public bool mPathWaysChanged = false;
+	public GameObject mTheTaken;
 
 	//for switching modes by clicking things on the scene
-	private GameObject lastButton;
-	public LayerMask buttonMask;
-	public Material oldButton;
+	private GameObject mLastButtonSelected;
+	public LayerMask mButtonMask;
+	public Material mOldButton;
 
 
-	//for gameover
+	private const int STATE_GAME_STARTED = 0;
+	private const int STATE_GAME_PAUSED = 1;
+	private const int STATE_GAME_OVER = 2;
+
+	// TODO: Refactor to have different game states. paused, started, and game over etc.
+	public int mGameState = STATE_GAME_OVER;
+
 	public bool gameover;
 
 	//checking if everything is blocked;
-	public bool allPathsBlocked = false;
-	List<GameObject> dummyPaths = new List<GameObject>();
+	public bool mAllPathsBloked = false;
+	List<GameObject> mDummyPaths = new List<GameObject>();
 
 
 	//firing off the laser
-	public float laserFireTime = 0.35f;
-	private float laserTime = 0.35f;
+	// TODO; Remove (no more laser?
+	public float mLaserFireTime = 0.35f;
+	private float mLaserTime = 0.35f;
 
 	//upgrade multiplier for upgrading tower weapons
-	public float upgradeTowerMult = 1.0f;
+	public float mTowerUpgradeMultiplier = 1.0f;
 
 	//multishot
-	public bool multiShot = false;
+	public bool mMultiShot = false;
 
 	//radius upgrade
-	public float theRadiusMult;
+	public float mSplashRadiusMultiplier;
 	//number of shots for spread
-	public int numShots;
-	public float fireAngle;
+	public int mNumShots;
+	public float mFireAngle;
 
 	//for SOUND
-	public AudioClip towershot ;
-
+	public AudioClip mTowerShot ;
 
 
 	public GameObject findMinInList(List<GameObject> lst)
@@ -127,8 +138,6 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 	{
 		GameObject walkablePlaneParent = GameObject.Find ("UnitsApproved");
 		
-		//List<GameObject> distances = new List<GameObject> ();
-		//Queue<GameObject> minVisits = new Queue<GameObject> ();
 		List<GameObject> currPath = new List<GameObject> ();
 		BinaryHeap bhp = new BinaryHeap (200);
 		Transform [] ts = walkablePlaneParent.GetComponentsInChildren<Transform> ();
@@ -142,22 +151,8 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 					gfn.distance = 10000;
 					gfn.hasBeenVisited = false;
 				}
-				//distances.Add(child.gameObject);
 			}
 		}
-		/*
-		foreach(Transform child in walkablePlaneParent.transform)
-		{
-			if(child.gameObject.tag != "Taken")
-			{
-				GridForUnits gfn = child.gameObject.GetComponent<GridForUnits>();
-				gfn.distance = 10000;
-				gfn.hasBeenVisited = false;
-				//distances.Add(child.gameObject);
-			}
-		}*/
-		//Debug.Log (distances.Count);
-		//start = GameObject.Find ("UnitsAllowedStart");
 		if(start)
 		{
 			GridForUnits gfnStart = start.GetComponent<GridForUnits> ();
@@ -219,12 +214,12 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 					end = gfnEnd.previous;
 				}
 				currPath.Add(end);
-				allPathsBlocked = false;
+				mAllPathsBloked = false;
 			}
 			else
 			{
 				currPath = paths;
-				allPathsBlocked = true;
+				mAllPathsBloked = true;
 			}
 			//Debug.Log(currPath.Count);
 		}
@@ -235,97 +230,50 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-		int enemyMask = 1 << enemyLayer;
-		int placementMask = 1 << placementPlaneLayer;
+		int enemyMask = 1 << mEnemeyLayter;
+		int placementMask = 1 << mPlacement;
 		gameover = false;
 		theWeapon = 1;
 		theTowerWeapon = 0;
-		thePathsHaveChanged = false;
+		mPathWaysChanged = false;
 		//make this as a public function to easily use
-		start = GameObject.Find ("UnitsAllowedStart");
-		thePath = dijkstraPath (start,thePath);
-		start2 = GameObject.Find ("UnitsAllowed18");
-		thePath2 = dijkstraPath (start2,thePath2);
-		start3 = GameObject.Find ("UnitsAllowed1");
-		thePath3 = dijkstraPath (start3, thePath3);
-		Debug.Log ("thepath3" + thePath3.Count);
-		buyPlane = enemyMask | placementMask;
-		upgradeTowerMult = 1.0f;
-		theRadiusMult = 1.0f;
-		multiShot = false;
-		numShots = 1;
+		mStart = GameObject.Find ("UnitsAllowedStart");
+		mEnemyPath = dijkstraPath (mStart,mEnemyPath);
+		mStart2 = GameObject.Find ("UnitsAllowed18");
+		mEnemyPath2 = dijkstraPath (mStart2,mEnemyPath2);
+		mStart3 = GameObject.Find ("UnitsAllowed1");
+		mEnemeyPath3 = dijkstraPath (mStart3, mEnemeyPath3);
+		Debug.Log ("thepath3" + mEnemeyPath3.Count);
+		mBuyPlane = enemyMask | placementMask;
+		mTowerUpgradeMultiplier = 1.0f;
+		mSplashRadiusMultiplier = 1.0f;
+		mMultiShot = false;
+		mNumShots = 1;
+	}
+
+
+	private void handleBuyModeInput() {
+
+	}
+
+	private void handleShootModeInput() {
+
 	}
 
 
 	// Update is called once per frame
 	void Update () 
 	{
-		if (thePathsHaveChanged)
-		{
-			thePathsHaveChanged = false;
-			//thePathsHaveChanged = false;
-		}
-		//if(allPathsBlocked)
-		//{
-		//	allPathsBlocked = false;
-		//}
-		/*
-		if (Input.GetKey (KeyCode.B))
-		{	
-			buyMode = true;
-			shootMode = false;
+		if (mInputMode == INPUT_MODE_SHOOT) {
+			handleShootModeInput();
+		} else {
+			handleBuyModeInput();
 		}
 
-		if(Input.GetKey(KeyCode.S))
+		if (mPathWaysChanged)
 		{
-			buyMode = false;
-			shootMode = true;
-			if(lastPlane)
-			{
-				lastPlane.renderer.material = oldMaterial;
-				lastPlane = null;
-			}
+			mPathWaysChanged = false;
 		}
-		*/
-		/*
-		Ray ra = Camera.main.ScreenPointToRay(Input.mousePosition);
-		RaycastHit ht;
-		if(Physics.Raycast(ra,out ht,1000,buttonMask))
-		{
-			if(lastButton)
-				lastButton.renderer.material = oldButton;
-			lastButton = ht.collider.gameObject;
-			lastButton.renderer.material = hoverMaterial;
-
-		}
-		else
-		{
-			if(lastButton)
-				lastButton.renderer.material = oldButton;
-			lastButton = null;
-		}
-		if(Input.GetMouseButtonDown(0) && lastButton && lastButton.gameObject.tag == "SwitchMode")
-		{
-			shootMode = !shootMode;
-			buyMode = !buyMode;
-			lastButton.renderer.material = oldButton;
-			if(!buyMode)
-			{
-				if(lastPlane)
-				{
-					lastPlane.renderer.material = oldMaterial;
-					lastPlane = null;
-				}
-			}
-			Debug.Log("SWITCH");
-		}
-		else if(Input.GetMouseButtonDown(0) && lastButton && buyMode)
-		{
-			theWeapon = (theWeapon+1) % weapons.Length;
-			lastButton.renderer.material = oldButton;
-			Debug.Log(theWeapon);
-		}
-		*/
 		if(gameover)
 		{
 			NewSpawnWaves sw = gameObject.GetComponent<NewSpawnWaves>();
@@ -338,31 +286,31 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 			if(Input.GetMouseButton(0)){
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hit;
-			if(Physics.Raycast(ray,out hit,1000,buyPlane))
+			if(Physics.Raycast(ray,out hit,1000,mBuyPlane))
 			{
-				if(lastPlane)
+				if(mLastPlane)
 				{
-					lastPlane.renderer.material = oldMaterial;
-					lastPlane.renderer.enabled = false;
-					Destroy(hoverObject);
+					mLastPlane.renderer.material = mOldMaterial;
+					mLastPlane.renderer.enabled = false;
+					Destroy(mHoverObject);
 				}
 				if(hit.collider.gameObject.tag != "Enemy")
 				{
-					lastPlane = hit.collider.gameObject;
+					mLastPlane = hit.collider.gameObject;
 				//oldMaterial = lastPlane.renderer.material;
-					GridForUnits lsp = lastPlane.GetComponent<GridForUnits>();
+					GridForUnits lsp = mLastPlane.GetComponent<GridForUnits>();
 					if(lsp)
 					{
-						lastPlane.renderer.enabled = true;
+						mLastPlane.renderer.enabled = true;
 						if(lsp.isAvailable)
 						{
-							int cstTBy = weapons[theWeapon].GetComponent<Weapons>().cost;
+							int cstTBy = mWeapons[theWeapon].GetComponent<Weapons>().cost;
 							GameObject towor = GameObject.FindGameObjectWithTag("TheTower");
 							int rsrce = towor.GetComponent<TowerStats>().mResources;
 							if((rsrce - cstTBy) >= 0)
-								lastPlane.renderer.material = hoverMaterial;
+								mLastPlane.renderer.material = mHoverMaterial;
 							else
-								lastPlane.renderer.material = cantBuy;
+								mLastPlane.renderer.material = mCantBuyMaterial;
 						}
 						else
 						{
@@ -374,24 +322,24 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 								GameObject tweer = GameObject.FindGameObjectWithTag("TheTower");
 								int reesrc = tweer.GetComponent<TowerStats>().mResources;
 								if(reesrc - csy >= 0)
-									lastPlane.renderer.material = hoverMaterial;
+									mLastPlane.renderer.material = mHoverMaterial;
 								else
-									lastPlane.renderer.material = cantBuy;
+									mLastPlane.renderer.material = mCantBuyMaterial;
 							}
 						}
 					
-						if(lastPlane != null && lastPlane.GetComponent<GridForUnits>().whatsInside != null)
+						if(mLastPlane != null && mLastPlane.GetComponent<GridForUnits>().whatsInside != null)
 						{
-							GameObject hoverUpgrade = lastPlane.GetComponent<GridForUnits>().whatsInside.GetComponent<Weapons>().upgradeDummy;
+							GameObject hoverUpgrade = mLastPlane.GetComponent<GridForUnits>().whatsInside.GetComponent<Weapons>().upgradeDummy;
 							if(hoverUpgrade)
 							{
-								hoverObject = (GameObject)Instantiate(hoverUpgrade, lastPlane.transform.position, 
+								mHoverObject = (GameObject)Instantiate(hoverUpgrade, mLastPlane.transform.position, 
 						     	                                 Quaternion.identity);
 							}
 						}
 						else
 						{
-							hoverObject = (GameObject)Instantiate(dummyWeapons[theWeapon], lastPlane.transform.position, 
+							mHoverObject = (GameObject)Instantiate(mDummyWeapons[theWeapon], mLastPlane.transform.position, 
 						                                      Quaternion.identity);
 						}
 					}
@@ -399,109 +347,109 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 				else
 				{
 					//lastPlane.renderer.enabled = false;
-					lastPlane = null;
+					mLastPlane = null;
 				}
 			}
 			else
 			{
-				if(lastPlane)
+				if(mLastPlane)
 				{
-					lastPlane.renderer.material = oldMaterial;
-					lastPlane.renderer.enabled = false;
-					lastPlane = null;
-						Destroy(hoverObject);
+					mLastPlane.renderer.material = mOldMaterial;
+					mLastPlane.renderer.enabled = false;
+					mLastPlane = null;
+						Destroy(mHoverObject);
 				}
 			}
 		}
-			if(Input.GetMouseButtonUp(0) && lastPlane)
+			if(Input.GetMouseButtonUp(0) && mLastPlane)
 			{
-				lastPlane.renderer.enabled = false;
-				Destroy(hoverObject);
+				mLastPlane.renderer.enabled = false;
+				Destroy(mHoverObject);
 				Debug.Log("HELLO THERE");
-				grid = lastPlane.GetComponent<GridForUnits>();
-				if(grid.isAvailable)
+				mEnemyGrid = mLastPlane.GetComponent<GridForUnits>();
+				if(mEnemyGrid.isAvailable)
 				{
-					if(weapons.Length > 0)
+					if(mWeapons.Length > 0)
 					{	
-						lastPlane.gameObject.tag = "Taken";
-						grid.isAvailable = false;
+						mLastPlane.gameObject.tag = "Taken";
+						mEnemyGrid.isAvailable = false;
 						//theTaken.gameObject.tag = "Taken";
-						dijkstraPath(start,dummyPaths);
-						Debug.Log (allPathsBlocked);
-						if(!allPathsBlocked)
+						dijkstraPath(mStart,mDummyPaths);
+						Debug.Log (mAllPathsBloked);
+						if(!mAllPathsBloked)
 						{
 							//lastPlane.gameObject.tag = "NotTaken";
-							int costToBuy = weapons[theWeapon].GetComponent<Weapons>().cost;
+							int costToBuy = mWeapons[theWeapon].GetComponent<Weapons>().cost;
 							GameObject twr = GameObject.FindGameObjectWithTag("TheTower");
 							int resource = twr.GetComponent<TowerStats>().mResources;
 							Debug.Log(resource);
 							if((resource - costToBuy) >= 0)
 							{
 								twr.GetComponent<TowerStats>().mResources -= costToBuy;
-								Vector3 spawn = lastPlane.transform.position;
-								GameObject currWeapon = (GameObject)Instantiate(weapons[theWeapon], spawn, 
+								Vector3 spawn = mLastPlane.transform.position;
+								GameObject currWeapon = (GameObject)Instantiate(mWeapons[theWeapon], spawn, 
 						                                                	Quaternion.identity);
 
 
 							//temp.transform.localEulerAngles = new Vector3(0.0f, Random.Range(0,360), 0.0f);
-								grid.whatsInside = currWeapon;
-								grid.isAvailable = false;
-								lastPlane.gameObject.tag = "Taken";
+								mEnemyGrid.whatsInside = currWeapon;
+								mEnemyGrid.isAvailable = false;
+								mLastPlane.gameObject.tag = "Taken";
 
 								//wall specific placement;
 								if(currWeapon.tag == "WallWeapon")
 								{
 									wallObjectSurvive wos = currWeapon.GetComponent<wallObjectSurvive>();
-									wos.planeItsOn = lastPlane.gameObject;
+									wos.planeItsOn = mLastPlane.gameObject;
 								}
 							//GameObject start = GameObject.Find ("UnitsAllowedStart");
-								theTaken = lastPlane;
-								theTaken.gameObject.tag = "Taken";
-								thePathsHaveChanged = true;
-								if(thePath3.Contains(theTaken))
+								mTheTaken = mLastPlane;
+								mTheTaken.gameObject.tag = "Taken";
+								mPathWaysChanged = true;
+								if(mEnemeyPath3.Contains(mTheTaken))
 								{
-									thePath3 = dijkstraPath(start3,thePath3);
+									mEnemeyPath3 = dijkstraPath(mStart3,mEnemeyPath3);
 								//thePathsHaveChanged = true;
 								//Debug.Log("Change Paths");
 								}
-								if(thePath2.Contains(theTaken))
+								if(mEnemyPath2.Contains(mTheTaken))
 								{
-									thePath2 = dijkstraPath(start2,thePath2);
+									mEnemyPath2 = dijkstraPath(mStart2,mEnemyPath2);
 
 								//thePathsHaveChanged1 = true;
 								}
 								NewSpawnWaves nsw = gameObject.GetComponent<NewSpawnWaves>();
 								if(nsw.allBlue)
 								{
-									if(thePath.Contains(theTaken))
+									if(mEnemyPath.Contains(mTheTaken))
 									{
-										thePath = dijkstraPath(start,thePath);
+										mEnemyPath = dijkstraPath(mStart,mEnemyPath);
 										
 										//thePathsHaveChanged1 = true;
 									}
 								}
 							}
 							else{
-								lastPlane.gameObject.tag = "NotTaken";
-								grid.isAvailable = true;
+								mLastPlane.gameObject.tag = "NotTaken";
+								mEnemyGrid.isAvailable = true;
 
 							}
 						//thePathsHaveChanged = false;
 						}
 						else
 						{
-							lastPlane.gameObject.tag = "NotTaken";
-							grid.isAvailable = true;
+							mLastPlane.gameObject.tag = "NotTaken";
+							mEnemyGrid.isAvailable = true;
 							//theTaken.gameObject.tag = "NotTaken";
 						}
 					}
 				}
 				else
 				{
-					if(grid.whatsInside != null)
+					if(mEnemyGrid.whatsInside != null)
 					{
-						GameObject gu = grid.whatsInside;
-						Weapons getUpgrade = grid.whatsInside.GetComponent<Weapons>();
+						GameObject gu = mEnemyGrid.whatsInside;
+						Weapons getUpgrade = mEnemyGrid.whatsInside.GetComponent<Weapons>();
 						GameObject whatToUpgrade = getUpgrade.upgradeIt;
 						if(whatToUpgrade != null)
 						{
@@ -511,18 +459,18 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 							if(resource - costToBuy >= 0)
 							{
 								twr.GetComponent<TowerStats>().mResources -= costToBuy;
-								Vector3 tempPos = lastPlane.transform.position;
+								Vector3 tempPos = mLastPlane.transform.position;
 								Quaternion tempRot = getUpgrade.transform.rotation;
 								Destroy(gu);
-								grid.whatsInside = null;
+								mEnemyGrid.whatsInside = null;
 								GameObject currWeapon = (GameObject)Instantiate(whatToUpgrade, 
 							                                                tempPos, tempRot);
 								if(currWeapon.tag == "WallWeapon")
 								{
 									wallObjectSurvive wos = currWeapon.GetComponent<wallObjectSurvive>();
-									wos.planeItsOn = lastPlane;
+									wos.planeItsOn = mLastPlane;
 								}
-								grid.whatsInside = currWeapon;
+								mEnemyGrid.whatsInside = currWeapon;
 							}
 						}
 					}
@@ -538,7 +486,7 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 			int playerHealth = theTower.GetComponent<TowerStats>().mHealth;
 			if(Input.GetMouseButtonDown(0) && !mIsClickDown)
 			{
-				if(towerWeapons.Length > 0)
+				if(mTowerWeapons.Length > 0)
 				{
 					Debug.Log("In onDown");
 					mClickY = Input.mousePosition.y;
@@ -554,7 +502,7 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 						//Debug.Log(targetPosition);
 					}
 				}
-			} else if (Input.GetMouseButtonUp(0) && Time.time - lastFired >= fireRate && playerHealth > 0 && theTowerWeapon < towerWeapons.Length-1) {
+			} else if (Input.GetMouseButtonUp(0) && Time.time - lastFired >= fireRate && playerHealth > 0 && theTowerWeapon < mTowerWeapons.Length-1) {
 				Debug.Log("In onUp");
 				mIsClickDown = false;
 				mReleaseY = Input.mousePosition.y;
@@ -566,9 +514,9 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 				} else if (deltaY < -maxAngleScreenRatio) {
 					deltaY = -maxAngleScreenRatio;
 				}
-				fireAngle = deltaY / maxAngleScreenRatio * MAX_FIRE_ANGLE;
+				mFireAngle = deltaY / maxAngleScreenRatio * MAX_FIRE_ANGLE;
 				/** Get the tower */
-				if(!multiShot)
+				if(!mMultiShot)
 				{
 					//towerAmmo = (GameObject)Instantiate(towerWeapons[theTowerWeapon], 
 				      //                             TOWER_FIRE_VECTOR,
@@ -582,24 +530,24 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 					//Vector3 dir = targetPosition - TOWER_FIRE_VECTOR;
 					//cannon.dir = dir.normalized;
 					//cannon.mAngle = fireAngle;
-					spawnSpreadShots(numShots,targetPosition,fireAngle);
+					spawnSpreadShots(mNumShots,targetPosition,mFireAngle);
 				}
 				else
 				{
-					StartCoroutine(spawnMultiShots(3,targetPosition,fireAngle));
+					StartCoroutine(spawnMultiShots(3,targetPosition,mFireAngle));
 				}
 				theTower.GetComponent<TowerStats>().mLastFired = Time.time;
-			} else if(Input.GetMouseButton(0) && theTowerWeapon == towerWeapons.Length - 1) {
-				if(laserFireTime <= 0.0f)
+			} else if(Input.GetMouseButton(0) && theTowerWeapon == mTowerWeapons.Length - 1) {
+				if(mLaserFireTime <= 0.0f)
 				{
 					//fire laser
-					GameObject tmpAmmo = (GameObject)Instantiate(towerWeapons[theTowerWeapon], TOWER_FIRE_VECTOR,
+					GameObject tmpAmmo = (GameObject)Instantiate(mTowerWeapons[theTowerWeapon], TOWER_FIRE_VECTOR,
 					                                             Quaternion.identity);
 					tmpAmmo.transform.LookAt(targetPosition);
-					laserFireTime = laserTime;
+					mLaserFireTime = mLaserTime;
 				}
-				laserFireTime -= Time.deltaTime;
-				if(towerWeapons.Length > 0)
+				mLaserFireTime -= Time.deltaTime;
+				if(mTowerWeapons.Length > 0)
 				{
 					mClickY = Input.mousePosition.y;
 					Plane playerPlane = new Plane(Vector3.up, transform.position);
@@ -612,7 +560,7 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 						//Debug.Log(targetPosition);
 					}
 				}
-			} else if (mIsClickDown && theTowerWeapon != towerWeapons.Length - 1) {
+			} else if (mIsClickDown && theTowerWeapon != mTowerWeapons.Length - 1) {
 				//Plane playerPlane = new Plane(Vector3.up, transform.position);
 				//Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 				
@@ -636,20 +584,20 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 				} else if (deltaY < -maxAngleScreenRatio) {
 					deltaY = -maxAngleScreenRatio;
 				}
-				fireAngle = deltaY / maxAngleScreenRatio * MAX_FIRE_ANGLE;
+				mFireAngle = deltaY / maxAngleScreenRatio * MAX_FIRE_ANGLE;
 				//Debug.Log("Fire Angle: " + fireAngle);
-				Vector3 dir = targetPosition - towerAmmoSpawn.position;
+				Vector3 dir = targetPosition - mTowerAmmoSpawn.position;
 				dir = dir.normalized;
-				dir.y += Mathf.Sin(fireAngle);
+				dir.y += Mathf.Sin(mFireAngle);
 				dir = dir.normalized;
 				float yAccel = FireTowersBasicAmmo.ACCEL_GRAVITY;
 				float yVelocity = 2.0f * dir.y;
-				float yPosInit = towerAmmoSpawn.position.y;//TOWER_FIRE_Y;
+				float yPosInit = mTowerAmmoSpawn.position.y;//TOWER_FIRE_Y;
 				float timeToHitPlus = (-yVelocity + Mathf.Sqrt(yVelocity * yVelocity - 4 * (yAccel / 2) * yPosInit)) / yAccel;
 				float timeToHitMinus = (-yVelocity - Mathf.Sqrt(yVelocity * yVelocity - 4 * (yAccel / 2) * yPosInit)) / yAccel;
 				float timeToHit = Mathf.Max(timeToHitPlus, timeToHitMinus) / 90.0f;
 				//Debug.Log( "Time to hit (max): " + timeToHit);
-				Vector3 hitLocation = new Vector3(towerAmmoSpawn.position.x + dir.x * timeToHit * 100.0f, 0, towerAmmoSpawn.position.z + dir.z * timeToHit * 100.0f);
+				Vector3 hitLocation = new Vector3(mTowerAmmoSpawn.position.x + dir.x * timeToHit * 100.0f, 0, mTowerAmmoSpawn.position.z + dir.z * timeToHit * 100.0f);
 				//Debug.Log ("x, y, z: " + hitLocation.x + ", " + hitLocation.y + ", " + hitLocation.z);
 				Destroy (mTargetLocation);
 				Destroy (mTargetPole);
@@ -659,8 +607,8 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 	//			mTargetPole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 				mTargetLine = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 				Destroy(mTargetLine.collider);
-				float hitDistX = Mathf.Abs(hitLocation.x - towerAmmoSpawn.position.x);
-				float hitDistZ = Mathf.Abs(hitLocation.z - towerAmmoSpawn.position.z);
+				float hitDistX = Mathf.Abs(hitLocation.x - mTowerAmmoSpawn.position.x);
+				float hitDistZ = Mathf.Abs(hitLocation.z - mTowerAmmoSpawn.position.z);
 				float totalHitDist = Mathf.Sqrt(hitDistX * hitDistX + hitDistZ * hitDistZ);
 				float angle = Mathf.Atan(hitDistZ / hitDistX);
 
@@ -676,9 +624,9 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 				//mTargetPole.transform.position = halfWay;
 				Vector3 lineLocation = TOWER_FIRE_VECTOR;
 				mTargetLine.renderer.material.color = new Color32(255, 0, 0, 0);
-				lineLocation.x = towerAmmoSpawn.position.x;
+				lineLocation.x = mTowerAmmoSpawn.position.x;
 				lineLocation.y = 0;
-				lineLocation.z = towerAmmoSpawn.position.z;
+				lineLocation.z = mTowerAmmoSpawn.position.z;
 				if (hitLocation.z > 0) {
 					angle = -angle;
 				}
@@ -704,7 +652,7 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 			//cannon.typeOfAmmo = theTowerWeapon;
 			//cannon.dir = multi_dir.normalized;
 			//cannon.mAngle = multi_fireAngle;
-			spawnSpreadShots(numShots, multTarget, multi_fireAngle);
+			spawnSpreadShots(mNumShots, multTarget, multi_fireAngle);
 			yield return new WaitForSeconds(0.2f);
 		}
 
@@ -727,22 +675,22 @@ public class Buy_Shoot_Modes : MonoBehaviour {
 		spreadPositions [1] = new Vector3 (spreadTarget.x, spreadTarget.y, spreadZn);
 		spreadPositions [2] = new Vector3 (spreadTarget.x, spreadTarget.y, spreadZp );
 		Vector3 theSpos = new Vector3 (0.0f, 0.0f, -10.0f);
-		Vector3 taSpawnIt = towerAmmoSpawn.position;
+		Vector3 taSpawnIt = mTowerAmmoSpawn.position;
 		for(int i = 0; i < num; i++)
 		{
-			GameObject ta = (GameObject)Instantiate(towerWeapons[theTowerWeapon], 
+			GameObject ta = (GameObject)Instantiate(mTowerWeapons[theTowerWeapon], 
 			                                        taSpawnIt,
 			                                        Quaternion.identity);
-			ta.GetComponent<TowerAmmoStats>().mDamage *= upgradeTowerMult;
+			ta.GetComponent<TowerAmmoStats>().mDamage *= mTowerUpgradeMultiplier;
 			FireTowersBasicAmmo cannon = ta.GetComponent<FireTowersBasicAmmo>();
-			cannon.radius *= theRadiusMult;
+			cannon.radius *= mSplashRadiusMultiplier;
 			cannon.typeOfAmmo = theTowerWeapon;
-			cannon.dir = (spreadPositions[i] - towerAmmoSpawn.position).normalized;
+			cannon.dir = (spreadPositions[i] - mTowerAmmoSpawn.position).normalized;
 			cannon.mAngle = multi_fireAngle;
 			theSpos *= -1.0f;
-			taSpawnIt = towerAmmoSpawn.position + theSpos;
+			taSpawnIt = mTowerAmmoSpawn.position + theSpos;
 			AudioListener.volume = 1.0f;
-			audio.PlayOneShot(towershot);
+			audio.PlayOneShot(mTowerShot);
 		}
 		
 	}
